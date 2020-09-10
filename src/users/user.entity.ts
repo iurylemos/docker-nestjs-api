@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 //Estrutura do Usuário e será com base nele que o TypeORM irá gerar a tabela no banco de dados
 
@@ -45,4 +46,10 @@ export class User extends BaseEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Método responsável por conferir a senha de um usuário:
+  async checkPassword(password: string): Promise<boolean> {
+    const hash = await bcrypt.hash(password, this.salt)
+    return hash === this.password;
+  }
 }

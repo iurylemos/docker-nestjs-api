@@ -5,6 +5,7 @@ import { UserRole } from './user-roles.enum';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { CredentialsDTO } from './dtos/credentials.dto';
 
 // Acesso ao banco de dados
 // Recebemos como parâmetro no método a função do usuário na forma de nosso RolesEnum,
@@ -35,6 +36,18 @@ export class UserRepository extends Repository<User> {
       } else {
         throw new InternalServerErrorException('Error ao salvar o usuário no banco de dados')
       }
+    }
+  }
+
+  // Método para verificação das credenciais de um usuário
+  async checkCredentials(credentialsDto: CredentialsDTO): Promise<User> {
+    const { email, password } = credentialsDto;
+    const user = await this.findOne({ email, status: true });
+
+    if(user && (await user.checkPassword(password))) {
+      return user;
+    } else {
+      return null;
     }
   }
 

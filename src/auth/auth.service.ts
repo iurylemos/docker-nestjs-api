@@ -5,13 +5,15 @@ import { CreateUserDto } from '../users/dtos/create-user.dto';
 import { User } from '../users/user.entity';
 import { UserRole } from '../users/user-roles.enum';
 import { CredentialsDTO } from '../users/dtos/credentials.dto';
+import { JwtService } from '@nestjs/jwt'
 // Com o UserRepository adicionado ao Módulo
 // agora posso criar o método para criação de um usuário comum
 
 @Injectable()
 export class AuthService {
   constructor(@InjectRepository(UserRepository)
-  private userRepository: UserRepository
+  private userRepository: UserRepository,
+  private jwtService: JwtService
   ) { }
 
   //Método de cadastro
@@ -30,6 +32,13 @@ export class AuthService {
     if(user === null) {
       throw new UnauthorizedException('Credenciais inválidas')
     }
+
+    const jwtPayload = {
+      id: user.id
+    }
+    const token = await this.jwtService.sign(jwtPayload);
+
+    return { token }
   }
 
 }

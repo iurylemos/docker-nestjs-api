@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { ReturnUserDto } from './dtos/return-user.dto';
@@ -15,10 +15,14 @@ export class UsersController {
 
   // Utilizamos o Decorator @Post 
   // como forma de identificar o método HTTP que deverá ser utilizado para acessar a rota. 
-  // OBS: Podemos passar como parâmetro para esse Decorator o caminho da URI que ele irá tratar.
+  // OBS: Podemos passar como parâmetro para esse Decorator o caminho da URI que ele irá tratar
+  
+  // passando o parâmetro ValidationPipe para o decorator @Body que realiza a extração de dados da requisição
+  // E a validação dos campos no DTO sejam ativadas
+
   
   @Post()
-  async createAdminUser(@Body() createUserDto: CreateUserDto): Promise<ReturnUserDto> {
+  async createAdminUser(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<ReturnUserDto> {
     const user = await this.userServices.createAdminUser(createUserDto);
     return {
       user,

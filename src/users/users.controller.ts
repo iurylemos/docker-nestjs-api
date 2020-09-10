@@ -1,7 +1,8 @@
-import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { ReturnUserDto } from './dtos/return-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 // O parâmentro ‘users’ passado para o Decorator @Controller 
 // serve para indicar que esse controller irá tratar das requisições feitas 
@@ -22,6 +23,7 @@ export class UsersController {
 
   
   @Post()
+  @UseGuards(AuthGuard())
   async createAdminUser(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<ReturnUserDto> {
     const user = await this.userServices.createAdminUser(createUserDto);
     return {

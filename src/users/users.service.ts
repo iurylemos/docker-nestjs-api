@@ -5,6 +5,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { User } from './user.entity';
 import { UserRole } from './user-roles.enum';
 import { UpdateUserDto } from './dtos/update-users.dto';
+import { FindUsersQueryDto } from './dtos/find-users-query.dto';
 
 // camada de serviço do módulo, responsável por tratar da lógica básica
 // por trás da execução de nossos endpoints
@@ -59,8 +60,13 @@ export class UsersService {
 
   async deleteUser(userId: string) {
     const result = await this.userRepository.delete({ id: userId })
-    if(result.affected === 0) {
+    if (result.affected === 0) {
       throw new NotFoundException('Não foi encontrado um usuário com o ID informado')
     }
+  }
+
+  async findUsers(queryDto: FindUsersQueryDto): Promise<{ users: User[]; total: number }> {
+    const users = await this.userRepository.findUsers(queryDto);
+    return users;
   }
 }

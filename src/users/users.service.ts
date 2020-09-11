@@ -56,4 +56,11 @@ export class UsersService {
       throw new InternalServerErrorException('Error ao salvar os dados no banco de dados')
     }
   }
+
+  async deleteUser(userId: string) {
+    const result = await this.userRepository.delete({ id: userId })
+    if(result.affected === 0) {
+      throw new NotFoundException('Não foi encontrado um usuário com o ID informado')
+    }
+  }
 }

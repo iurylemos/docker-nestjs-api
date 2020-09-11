@@ -1,4 +1,4 @@
-import { Controller, Post, Body, ValidationPipe, UseGuards, Get, Param, Patch, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, UseGuards, Get, Param, Patch, ForbiddenException, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { ReturnUserDto } from './dtos/return-user.dto';
@@ -54,6 +54,15 @@ export class UsersController {
     }
   }
 
+  /*
+    Além de utilizarmos um novo verbo HTTP (PATCH), 
+    combinamos o uso do decorator @Body com o decorator @Param. 
+    Também fizemos uso do decorator @GetUser, criado por nós mesmo no tutorial anterior.
+    Também realizamos uma pequena validação de permissão, 
+    já que além de um usuário administrador poder alterar dados dos outros usuários, 
+    também precisamos dar a permissão para que um usuário possa alterar seus próprios dados.
+  */
+
   @Patch(':id')
   async updateUser(
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
@@ -64,6 +73,15 @@ export class UsersController {
       throw new ForbiddenException('Você não tem autorização para acessar esse recurso')
     } else {
       return this.userServices.updateUser(updateUserDto, id);
+    }
+  }
+
+  @Delete(':id')
+  @Role(UserRole.ADMIN)
+  async deleteUser(@Param('id') id: string) {
+    await this.userServices.deleteUser(id);
+    return {
+      message: 'Usuário removido com sucesso'
     }
   }
 }

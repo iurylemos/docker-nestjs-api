@@ -7,6 +7,8 @@ import { UserRole } from '../users/user-roles.enum';
 import { CredentialsDTO } from '../users/dtos/credentials.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
+import { randomBytes } from 'crypto';
+import { ChangePasswordDto } from 'src/users/dtos/change-password.dto';
 // Com o UserRepository adicionado ao Módulo
 // agora posso criar o método para criação de um usuário comum
 
@@ -78,6 +80,53 @@ export class AuthService {
     );
 
     if (result.affected === 0) throw new NotFoundException('Token invalido')
+  }
+
+  async sendRecoverPasswordEmail(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ email })
+
+    if(!user) {
+      throw new NotFoundException("Não há usuário cadastrado com esse email")
+    }
+
+    user.recoverToken = randomBytes(32).toString('hex');
+
+    await user.save()
+
+    const mail = {
+      to: user.email,
+      from: 'noreply@application.com',
+      subject: 'Recuperação de senha',
+      template: 'recover-password',
+      context: {
+        token: user.recoverToken,
+      },
+    };
+    await this.mailerService.sendMail(mail);
+
+  }
+
+  async changePassword(id: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+    const { password, passwordConfirmation } = changePasswordDto;
+
+    if(password !== passwordConfirmation) {
+      throw new UnprocessableEntityException('As senhas não conferem');
+    }
+
+    await this.userRepository.changePassowrd(id, password);
+  }
+
+  async resetPassword(recoverToken: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+    const user = await this.userRepository.findOne({ recoverToken }, { select: ['id'] });
+    if(!user) {
+      throw new NotFoundException('Token Inválido')
+    }
+
+    try {
+      await this.changePassword(user.id.toString(), changePasswordDto);
+    } catch (error) {
+      throw error;
+    }
   }
 
 }

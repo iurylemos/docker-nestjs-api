@@ -5,6 +5,7 @@ import { CredentialsDTO } from '../users/dtos/credentials.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../users/user.entity';
 import { GetUser } from './get-user.decorator';
+import { ChangePasswordDto } from 'src/users/dtos/change-password.dto';
 
 /*
   Usamos agora o decorator @UseGuards(). 
@@ -39,6 +40,24 @@ export class AuthController {
     const user = await this.authService.confirmMail(token);
     return {
       message: 'Email confirmado'
+    }
+  }
+
+  @Post('/send-recover-email')
+  async sendRecoverPasswordEmail(@Body('email') email: string): Promise<{message: string}> {
+    await this.authService.sendRecoverPasswordEmail(email);
+
+    return {
+      message: 'Foi enviado um email com instruções para resetar sua senha'
+    }
+  }
+
+  @Patch('/reset-password/:token')
+  async resetPassword(@Param('token') token: string, @Body(ValidationPipe) changePasswordDto: ChangePasswordDto): Promise<{message: string}> {
+    await this.authService.resetPassword(token, changePasswordDto);
+
+    return {
+      message: 'Senha alterada com sucesso'
     }
   }
 }

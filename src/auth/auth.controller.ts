@@ -1,4 +1,4 @@
-import { Controller, Post, Body, ValidationPipe, Get, UseGuards, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, Get, UseGuards, Patch, Param, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dtos/create-user.dto';
 import { CredentialsDTO } from '../users/dtos/credentials.dto';
@@ -6,6 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from '../users/user.entity';
 import { GetUser } from './get-user.decorator';
 import { ChangePasswordDto } from 'src/users/dtos/change-password.dto';
+import { UserRole } from '../users/user-roles.enum';
 
 /*
   Usamos agora o decorator @UseGuards(). 
@@ -58,6 +59,23 @@ export class AuthController {
 
     return {
       message: 'Senha alterada com sucesso'
+    }
+  }
+
+  @Patch(':id/change-password')
+  @UseGuards(AuthGuard())
+  async changePassword(
+    @Param('id') id:string,
+    @Body(ValidationPipe) changePasswordDto: ChangePasswordDto,
+    @GetUser() user: User
+  ) {
+    if(user.role !== UserRole.ADMIN && user.id.toString() !== id) {
+      throw new UnauthorizedException('Você não tem permissão para realizar essa operação')
+    }
+
+    await this.authService.changePassword(id, changePasswordDto);
+    return {
+      message: 'Senha alterada'
     }
   }
 }

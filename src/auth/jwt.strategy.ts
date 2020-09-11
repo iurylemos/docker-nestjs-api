@@ -12,6 +12,11 @@ import { UserRepository } from '../users/users.repository';
    e retornamos essa entidade ao final da validação do token
 */
 
+/*
+  Permitir que o usuário altere sua senha sem passar por todo o processo de recuperação,
+   caso ele já esteja autenticado e queira apenas mudar sua senha atual
+*/
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(

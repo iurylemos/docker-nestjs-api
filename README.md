@@ -1,8 +1,6 @@
-## Description
+## Projeto usando NestJS + Docker.
 
-Projeto usando NestJS + Docker.
-
-## Installation
+## Instalação
 
 ```bash
 $ npm install
@@ -21,7 +19,7 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## Test
+## Tests
 
 ```bash
 # unit tests
@@ -33,7 +31,3 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-
-## License
-
-  Nest is [MIT licensed](LICENSE).
